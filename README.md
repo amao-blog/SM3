@@ -1,17 +1,14 @@
-# SM3
-密码学作业：国产加密算法SM3的java实现
-
 ## 一、SM3算法介绍
 SM3是国家密码管理局编制的商用算法，它是一种杂凑算法，可以应用于数字签名、验证等密码应用中。其计算方法、计算步骤和运算实例可以在[国家商用密码管理办公室官网](http://www.oscca.gov.cn/sca/xxgk/2010-12/17/content_1002389.shtml)查看。   
 
-该算法的输入是一个长度 `L` 比特的消息m，其中 `L &lt; 2^64`  ，经过填充、迭代压缩后，生成一个`256`比特的输出。
+该算法的输入是一个长度 `L` 比特的消息m，其中 `L < 2^64`  ，经过填充、迭代压缩后，生成一个`256`比特的输出。
 ## 二、算法步骤
 ### 2.1  填充长度
 假设消息m 的长度为 L 比特。首先将比特“`1`”添加到消息的末尾,再添加k 个“`0`”, k是满足` L + 1 + k ≡ 448 mod 512 ` 的最小的非负整数。然后再添加一个64位比特串,该比特串是长度L的二进制表示。填充后的消息`m′`的比特长度为512的倍数。   
 
 在具体的实现过程中，首先获取消息超过512比特整数倍部分的长度L。由于在最后一个分组分组中，要将1个比特位“`1`”添加到消息的末尾，并且要添加64比特来存储消息的长度。
 
-当 `L &lt;= 512-(64+1)`时，可以直接填充比特位“`1`”、 `512-(64+1)`个比特位“`0`”、64位的消息长度，；当 `L &gt; 512-(64+1)`时，最后一个512比特的分组不够填充，需要再添加一个512位的分组，此时填充的“`0`”的个数为` k=512-L-1+(512-64) `。
+当 `L <= 512-(64+1)`时，可以直接填充比特位“`1`”、 `512-(64+1)`个比特位“`0`”、64位的消息长度，；当 `L > 512-(64+1)`时，最后一个512比特的分组不够填充，需要再添加一个512位的分组，此时填充的“`0`”的个数为` k=512-L-1+(512-64) `。
 
 ### 2.2 迭代压缩
 在迭代的过程中，首先对填充后的消息`m′`按512比特进行分组。然后对每一个分组进行迭代压缩。迭代方式如下: 
@@ -29,15 +26,15 @@ ENDFOR
 ## 三、实现过程
 ### 3.1 创建项目
 打开Eclipse创建项目SM3，在项目SM3中创建类SM3。创建完成后目录结构如下所示：
-![](/storage/images//eclipse.png.png)
+![](https://www.web-security.cn/storage/images//eclipse.png.png)
 ### 3.2 定义算法中的常量、函数
 算法中需要用到函数FFj、GGj、P0、P1、常量Tj等，以及原始消息、填充后的消息定义如下：
 ```
 // 字符集
-private String charset = &quot;ISO-8859-1&quot;;
+private String charset = "ISO-8859-1";
 	
 // 要哈希的字符串
-private String message = &quot;abc&quot;;
+private String message = "abc";
 	
 // 填充后的字符串
 private String PaddingMessage;
@@ -46,7 +43,7 @@ private String PaddingMessage;
 
 // 获取常量T0和T1
 private int T(int j){
-	if(j &lt;= 15){
+	if(j <= 15){
 		return 0x79cc4519;
 	}else{
 		return 0x7a879d8a;
@@ -57,12 +54,12 @@ private int T(int j){
 private int FF(int X, int Y, int Z, int j)
 {
 	int result = 0;
-	if(j &gt;= 0 &amp;&amp;j &lt;= 15)
+	if(j >= 0 &&j <= 15)
 	{
 		result = X ^ Y ^ Z;
-	}else if(j &gt;= 16 &amp;&amp; j &lt;= 63)
+	}else if(j >= 16 && j <= 63)
 	{
-		result = (X &amp; Y) | (X &amp; Z) | (Y &amp; Z);
+		result = (X & Y) | (X & Z) | (Y & Z);
 	}
 		return result;
 	}
@@ -71,12 +68,12 @@ private int FF(int X, int Y, int Z, int j)
 private int GG(int X, int Y, int Z, int j)
 {
 	int result = 0;
-	if(j &gt;= 0 &amp;&amp;j &lt;= 15)
+	if(j >= 0 &&j <= 15)
 	{
 		result = X ^ Y ^ Z;
 	}else
 	{
-		result = (X &amp; Y) | (~X &amp; Z);
+		result = (X & Y) | (~X & Z);
 	}
 	return result;
 }
@@ -102,28 +99,28 @@ private int P1(int X)
 ```
 private void dump()
 	{
-		System.out.println(&quot;========开始打印========&quot;);
+		System.out.println("========开始打印========");
 		try{
 			byte bts[] = this.PaddingMessage.getBytes(this.charset);		
-			for(int i = 0; i &lt; bts.length; i ++)
+			for(int i = 0; i < bts.length; i ++)
 			{
-				if(i%16 != 0 &amp;&amp; i%2 == 0 &amp;&amp; i != 0){
-					System.out.print(&quot;  &quot;);
+				if(i%16 != 0 && i%2 == 0 && i != 0){
+					System.out.print("  ");
 				}
-				if(i%16 == 0 &amp;&amp; i != 0){
+				if(i%16 == 0 && i != 0){
 					System.out.println();
 				}
-				System.out.printf(&quot;%02x&quot;, bts[i]);
+				System.out.printf("%02x", bts[i]);
 			}
 		}catch(Exception e){
-			System.out.println(&quot;Error Catch&quot;);
+			System.out.println("Error Catch");
 		}
-		System.out.println(&quot;\n========结束打印========&quot;);
+		System.out.println("\n========结束打印========");
 }
 ```
 
 在输入消息为“abc”的情况下，打印填充后的消息的十六进制形式如下所示：
-![](https://www.web-security.cnhttps://www.web-security.cn/storage/images/dump.png.png)   
+![](https://www.web-security.cn/storage/images/dump.png.png)   
 其中开头的`61`、`62`、`63`是字母`a`、`b`、`c`对应的ASCII码，`80`是填充消息时附加的比特位`1`，该比特位与后面填充的比特位`0`，构成了二进制`1000 0000`，所以对应的十六进制是`80`。最后的`18`也是十六进制形式，对应的十进制是24，表示消息的长度是24位。
 
 由于在使用Java编写SM3算法时，计算的中间结果有字符串、整型数组等多种类型，为方便查看对应数据的十六进制形式，编写了多个dump方法，用于打印各种类型的数据。
@@ -138,7 +135,7 @@ private static void dump(int nums[])
 
 ### 3.3 遇到的错误及解决方案
 #### 3.3.1.    循环左移计算结果偶尔不正确     
-在Java中，只有按位左移`&lt;&lt;`操作符，按位左移溢出的比特位直接丢弃，而SM3算法需要的循环左移需要将溢出的比特位存储到操作数最右边。   
+在Java中，只有按位左移`<<`操作符，按位左移溢出的比特位直接丢弃，而SM3算法需要的循环左移需要将溢出的比特位存储到操作数最右边。   
 
  在实现循环左移时，假设要移位的32位比特位的数据为Y，则循环左移位可以分为三步：   
  ①把Y按位左移k位的值赋值为l，此时l最右边的k位为0；   
@@ -151,7 +148,7 @@ private static void dump(int nums[])
  // 将x循环左移N位
 	private static int CircleLeftShift(int x, int N)
 	{
-		return (x &lt;&lt; N) | (x &gt;&gt; (32 - N));
+		return (x << N) | (x >> (32 - N));
 	}
  ```
  在使用此方法进行按位左移时，发现偶尔计算出来的结果与预期不符合。经过调试，发现是在按位右移时没有得到预期的结果，导致最终循环左移结果出错。具体原因及分析如下:    
@@ -162,13 +159,13 @@ private static void dump(int nums[])
 
  而算术左移在移位时忽略符号位，即无论最高位是`0`还是`1`，都往最左边补`0`。
 
- 在SM3算法中，需要的是算术右移。而在Java的语法中，`&gt;&gt;`是逻辑右移，`&gt;&gt;&gt;`是算术右移。最初使用逻辑右移，导致循环左移最高位为`1`的数时运算结果与期望值不符。   
+ 在SM3算法中，需要的是算术右移。而在Java的语法中，`>>`是逻辑右移，`>>>`是算术右移。最初使用逻辑右移，导致循环左移最高位为`1`的数时运算结果与期望值不符。   
 修改后的循环左移方法如下:
 ```
 // 将x循环左移N位
 	private static int CircleLeftShift(int x, int N)
 	{
-		return (x &lt;&lt; N) | (x &gt;&gt;&gt; (32 - N));
+		return (x << N) | (x >>> (32 - N));
 	}
 ```
 
@@ -178,7 +175,7 @@ private static void dump(int nums[])
 padding += (byte)0x80;	// 先填充一个“1000 0000”
 ```
 其中padding是一个字符串类型的数据，用于存储附加的数据。填充完比特位`1`、k个`0`以及消息长度后，将填充后的消息打印出来，如下：   
-![](https://www.web-security.cn/storage/images/dump_01.png)   
+![](https://www.web-security.cn/storage/images//dump_01.png)   
 测试时输入的消息依旧是`abc`，理论上得到的是`6162 6380 0000 0000 .....`，将消息`c`即`63`后的十六进制位`2d 3132 38`与ASCII表对照，发现是`-128`。原因很明确，byte类型的`0x80`表示的数正是`-128`。而将`-128`与字符串padding进行 `+=`操作时，byte类型的数据被转换成字符串`-128`，所以得到上图的结果。   
  
  既然不能直接将byte类型的数据与字符串相连接，那可以尝试使用`new String(byte[] bytes[])`方法将一个byte数组转换成字符串。修改代码如下：
@@ -210,11 +207,11 @@ padding += new String(a, charset);
 	
 查看课本上的算法G赋值的位置，算法如下：   
 ```
-G ← F &lt;&lt;&lt; 9
+G ← F <<< 9
 ```
  此时怀疑移位算法是否编写正确，经过手算移位算法后，发现结果和实验中的显示的一样。对照国家密码管理局发布《SM3密码杂凑算法》发现，课本上的算法不对，正确的移位数应该是19，即：
  ```
- G ← F &lt;&lt;&lt; 19
+ G ← F <<< 19
  ```
  修改为正确的移位数后再次运行，发现结果与课本上的一致，SM3密码算法完成。哈希结果如下:    
  `66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0`
